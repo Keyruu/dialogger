@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use async_graphql::{
     http::GraphiQLSource, Context, EmptyMutation, EmptySubscription, Object, Schema,
 };
@@ -8,6 +10,7 @@ use axum::{
     routing::get,
     Router, Server,
 };
+use surrealdb::{engine::remote::ws::Ws, opt::auth::Root, Surreal};
 
 async fn graphql_handler(
     schema: Extension<Schema<QueryRoot, EmptyMutation, EmptySubscription>>,
@@ -30,8 +33,27 @@ impl QueryRoot {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> surrealdb::Result<()> {
     let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription).finish();
+
+    // Connect to the server
+    let db = Surreal::new::<Ws>("127.0.0.1:8000")
+        .await
+        .expect("Failed to connect to server");
+
+    // Signin as a namespace, database, or root user
+    db.signin(Root {
+        username: "root",
+        password: "root",
+    })
+    .await
+    .expect("Failed to signin");
+
+    // Select a specific namespace / database
+    db.use_ns("test")
+        .use_db("test")
+        .await
+        .expect("Failed to select namespace / database");
 
     let app = Router::new()
         .route("/", get(graphiql).post(graphql_handler))
@@ -43,4 +65,6 @@ async fn main() {
         .serve(app.into_make_service())
         .await
         .unwrap();
+
+    Ok(())
 }
