@@ -91,7 +91,7 @@ struct SurrealConnection {
 }
 
 #[tokio::main]
-async fn main() -> surrealdb::Result<()> {
+async fn main() {
     dotenv().ok();
 
     SimpleLogger::new().env().init().unwrap();
@@ -110,13 +110,20 @@ async fn main() -> surrealdb::Result<()> {
 
     let address = env::var("AXUM_LISTEN_ADDRESS").expect("AXUM_LISTEN_ADDRESS env is not set");
 
-    log::info!("🖖 Starting Axum!");
-    log::info!("🛝 Playground at http://{}.", address);
+    println!("");
+    println!("    ____  _       __                           ");
+    println!("   / __ \\(_)___ _/ /___  ____ _____ ____  _____");
+    println!("  / / / / / __ `/ / __ \\/ __ `/ __ `/ _ \\/ ___/");
+    println!(" / /_/ / / /_/ / / /_/ / /_/ / /_/ /  __/ /    ");
+    println!("/_____/_/\\__,_/_/\\____/\\__, /\\__, /\\___/_/     ");
+    println!("                      /____//____/             ");
+    println!("");
+
+    log::info!("🎸 Starting Axum!");
+    log::info!("🛝  Playground at http://{}.", address);
 
     Server::bind(&address.parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
-
-    Ok(())
 }
