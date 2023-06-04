@@ -1,8 +1,6 @@
 use std::env;
 
-use async_graphql::{
-    http::GraphiQLSource, Context, EmptyMutation, EmptySubscription, Error, Object, Schema,
-};
+use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
     extract::Extension,
@@ -11,24 +9,16 @@ use axum::{
     Router, Server,
 };
 use dotenvy::dotenv;
-use model::Person;
-use scalar::SurrealID;
-use serde::{Deserialize, Serialize};
+use model::QueryRoot;
 use simple_logger::SimpleLogger;
 use surrealdb::{
-    engine::{
-        any::connect,
-        remote::ws::{Client, Ws},
-    },
+    engine::any::{connect, Any},
     opt::auth::Root,
-    sql::Thing,
     Surreal,
 };
 use surrealdb_migrations::MigrationRunner;
 
-use crate::model::Record;
-
-mod model;
+pub mod model;
 mod scalar;
 
 async fn graphql_handler(
@@ -40,17 +30,6 @@ async fn graphql_handler(
 
 async fn graphiql() -> impl IntoResponse {
     response::Html(GraphiQLSource::build().endpoint("/").finish())
-}
-
-pub struct QueryRoot;
-
-#[Object]
-impl QueryRoot {
-    async fn books(&self, ctx: &Context<'_>) -> Result<Vec<Person>, Error> {
-        let client = &ctx.data::<SurrealConnection>()?.client;
-        let book: Vec<Person> = client.select("book").await?;
-        Ok(book)
-    }
 }
 
 //write function that creates the surreal client and sets a namespace and database
@@ -87,7 +66,7 @@ async fn create_client() -> Surreal<surrealdb::engine::any::Any> {
 }
 
 struct SurrealConnection {
-    client: Surreal<surrealdb::engine::any::Any>,
+    client: Surreal<Any>,
 }
 
 #[tokio::main]
@@ -98,7 +77,7 @@ async fn main() {
 
     let db = create_client().await;
 
-    let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+    let schema = Schema::build(QueryRoot::default(), EmptyMutation, EmptySubscription)
         .data(SurrealConnection { client: db })
         .finish();
 

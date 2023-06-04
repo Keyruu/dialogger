@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SurrealID(Thing);
+pub struct SurrealID(pub Thing);
 
 #[Scalar]
 impl ScalarType for SurrealID {

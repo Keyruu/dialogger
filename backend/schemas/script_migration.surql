@@ -1,3 +1,0 @@
-DEFINE TABLE book SCHEMAFULL;
-
-DEFINE FIELD name ON book;
