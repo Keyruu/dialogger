@@ -1,4 +1,0 @@
-DEFINE TABLE movie SCHEMAFULL;
-
-DEFINE FIELD name ON TABLE movie TYPE string
-  ASSERT $value != NONE;

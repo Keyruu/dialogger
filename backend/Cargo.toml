@@ -10,9 +10,9 @@ async-graphql-axum = "5.0.9"
 tokio = { version = "1.8", features = ["macros", "rt-multi-thread"] }
 hyper = "0.14"
 axum = { version = "0.6.0", features = ["headers"] }
-surrealdb = "1.0.0-beta.9"
+sqlx = { version = "0.6.3", features = [ "runtime-tokio-rustls", "postgres", "macros", "migrate", "chrono" ] }
 serde = { version = "1.0.163", features = ["derive"] }
-surrealdb-migrations = "0.9.6"
 dotenvy = "0.15.7"
 simple_logger = "4.1.0"
 log = "0.4.18"
+encoding_rs = "0.8.32"

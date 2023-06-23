@@ -1,16 +1,13 @@
 use async_graphql::*;
 use serde::Deserialize;
-use surrealdb::sql::Thing;
-
-use crate::SurrealConnection;
 
 use self::{
-    character::{Character, CharacterQuery},
-    conversation::ConversationQuery,
-    location::LocationQuery,
-    movie::MovieQuery,
-    scene::SceneQuery,
-    sentence::SentenceQuery,
+    character::{CharacterMutation, CharacterQuery},
+    conversation::{ConversationMutation, ConversationQuery},
+    location::{LocationMutation, LocationQuery},
+    movie::{MovieMutation, MovieQuery},
+    scene::{SceneMutation, SceneQuery},
+    sentence::{SentenceMutation, SentenceQuery},
 };
 
 mod character;
@@ -20,12 +17,6 @@ mod movie;
 mod scene;
 mod sentence;
 
-#[derive(Debug, Deserialize)]
-pub struct Record {
-    #[allow(dead_code)]
-    id: Thing,
-}
-
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(
     CharacterQuery,
@@ -34,4 +25,14 @@ pub struct QueryRoot(
     MovieQuery,
     SceneQuery,
     SentenceQuery,
+);
+
+#[derive(MergedObject, Default)]
+pub struct MutationRoot(
+    MovieMutation,
+    CharacterMutation,
+    ConversationMutation,
+    LocationMutation,
+    SceneMutation,
+    SentenceMutation,
 );

@@ -1,72 +1,31 @@
 use std::env;
 
-use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
+use crate::parse::parse_srt;
+use async_graphql::{http::GraphiQLSource, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
     extract::Extension,
     response::{self, IntoResponse},
-    routing::get,
+    routing::{get, post},
     Router, Server,
 };
 use dotenvy::dotenv;
-use model::QueryRoot;
+use model::{MutationRoot, QueryRoot};
 use simple_logger::SimpleLogger;
-use surrealdb::{
-    engine::any::{connect, Any},
-    opt::auth::Root,
-    Surreal,
-};
-use surrealdb_migrations::MigrationRunner;
+use sqlx::{migrate, postgres::PgPoolOptions};
 
 pub mod model;
-mod scalar;
+pub mod parse;
 
 async fn graphql_handler(
-    schema: Extension<Schema<QueryRoot, EmptyMutation, EmptySubscription>>,
+    schema: Extension<Schema<QueryRoot, MutationRoot, EmptySubscription>>,
     req: GraphQLRequest,
 ) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
 }
 
 async fn graphiql() -> impl IntoResponse {
-    response::Html(GraphiQLSource::build().endpoint("/").finish())
-}
-
-//write function that creates the surreal client and sets a namespace and database
-async fn create_client() -> Surreal<surrealdb::engine::any::Any> {
-    let url = env::var("SURREAL_URL").expect("SURREAL_URL env is not set");
-    let username = env::var("SURREAL_USERNAME").expect("SURREAL_USERNAME env is not set");
-    let password = env::var("SURREAL_PASSWORD").expect("SURREAL_PASSWORD env is not set");
-    let namespace = env::var("SURREAL_NAMESPACE").expect("SURREAL_NAMESPACE env is not set");
-    let database = env::var("SURREAL_DATABASE").expect("SURREAL_DATABASE env is not set");
-
-    let db = connect(url).await.expect("Failed to connect to server");
-
-    // Signin as a namespace, database, or root user
-    db.signin(Root {
-        username: &username,
-        password: &password,
-    })
-    .await
-    .expect("Failed to signin");
-
-    // Select a specific namespace / database
-    db.use_ns(namespace)
-        .use_db(database)
-        .await
-        .expect("Failed to select namespace / database");
-
-    // Apply all migrations
-    MigrationRunner::new(&db)
-        .up()
-        .await
-        .expect("Failed to apply migrations");
-
-    db
-}
-
-struct SurrealConnection {
-    client: Surreal<Any>,
+    response::Html(GraphiQLSource::build().endpoint("/graphql").finish())
 }
 
 #[tokio::main]
@@ -75,16 +34,35 @@ async fn main() {
 
     SimpleLogger::new().env().init().unwrap();
 
-    let db = create_client().await;
+    parse_srt("resources/wixxer.srt");
 
-    let schema = Schema::build(QueryRoot::default(), EmptyMutation, EmptySubscription)
-        .data(SurrealConnection { client: db })
-        .finish();
+    // let db = create_client().await;
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL env is not set");
+
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&db_url)
+        .await
+        .expect("Failed to connect to postgres");
+
+    migrate!()
+        .run(&pool)
+        .await
+        .expect("Failed to run migrations");
+
+    let schema = Schema::build(
+        QueryRoot::default(),
+        MutationRoot::default(),
+        EmptySubscription,
+    )
+    .data(pool)
+    .finish();
 
     // Connect to the server
 
     let app = Router::new()
-        .route("/", get(graphiql).post(graphql_handler))
+        .route("/", get(graphiql))
+        .route("/graphql", post(graphql_handler))
         .layer(Extension(schema));
 
     let address = env::var("AXUM_LISTEN_ADDRESS").expect("AXUM_LISTEN_ADDRESS env is not set");
