@@ -10,6 +10,9 @@ use super::{character::Character, conversation::Conversation, movie::Movie};
 pub struct Sentence {
     pub id: i64,
     pub text: String,
+    pub start_time: i64,
+    pub end_time: i64,
+    pub position: i64,
     #[graphql(skip)]
     pub speaker_id: Option<i64>,
     #[graphql(skip)]

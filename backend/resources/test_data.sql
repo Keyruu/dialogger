@@ -32,26 +32,26 @@ INSERT INTO conversation_participants (conversation_id, participant_id) VALUES
 (2, 3);
 
 -- Inserting into sentence
-INSERT INTO sentence (id, text, speaker_id, conversation_id, movie_id) VALUES
-(1, 'Ich habe einen neuen Partner für Sie.', 3, 2, 1),
-(2, 'Einen wunderschönen guten Morgen. Ich bin ja so froh...', 2, 2, 1),
-(3, 'Sind Sie jetzt vollständig verkalkt?', 1, 2, 1),
-(4, 'Er war der Beste auf der Polizeischule!', 3, 2, 1),
-(5, 'Und er ist eine geborene Frohnatur.', 3, 2, 1),
-(6, 'Genau das, was Sie in Ihrem augenblicklichen Gemütszustand dringend brauchen.', 3, 2, 1),
-(7, '...froh, Sie endlich kennenzulernen.', 2, 2, 1),
-(8, 'Ups! Meine Melone. Hauptsache, die Vitamine sind nicht raus.', 2, 2, 1);
+-- INSERT INTO sentence (id, text, speaker_id, conversation_id, movie_id) VALUES
+-- (1, 'Ich habe einen neuen Partner für Sie.', 3, 2, 1),
+-- (2, 'Einen wunderschönen guten Morgen. Ich bin ja so froh...', 2, 2, 1),
+-- (3, 'Sind Sie jetzt vollständig verkalkt?', 1, 2, 1),
+-- (4, 'Er war der Beste auf der Polizeischule!', 3, 2, 1),
+-- (5, 'Und er ist eine geborene Frohnatur.', 3, 2, 1),
+-- (6, 'Genau das, was Sie in Ihrem augenblicklichen Gemütszustand dringend brauchen.', 3, 2, 1),
+-- (7, '...froh, Sie endlich kennenzulernen.', 2, 2, 1),
+-- (8, 'Ups! Meine Melone. Hauptsache, die Vitamine sind nicht raus.', 2, 2, 1);
 
 -- Inserting into sentence_directed_to
-INSERT INTO sentence_directed_to (sentence_id, directed_to_id) VALUES
-(1, 1),
-(2, 1),
-(2, 3),
-(3, 3),
-(4, 1),
-(5, 1),
-(6, 1),
-(7, 1),
-(7, 3),
-(8, 1),
-(8, 3);
+-- INSERT INTO sentence_directed_to (sentence_id, directed_to_id) VALUES
+-- (1, 1),
+-- (2, 1),
+-- (2, 3),
+-- (3, 3),
+-- (4, 1),
+-- (5, 1),
+-- (6, 1),
+-- (7, 1),
+-- (7, 3),
+-- (8, 1),
+-- (8, 3);

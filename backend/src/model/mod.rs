@@ -1,5 +1,4 @@
 use async_graphql::*;
-use serde::Deserialize;
 
 use self::{
     character::{CharacterMutation, CharacterQuery},

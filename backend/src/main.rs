@@ -34,7 +34,7 @@ async fn main() {
 
     SimpleLogger::new().env().init().unwrap();
 
-    parse_srt("resources/wixxer.srt");
+    parse_srt("resources/wixxer.srt", 1).await;
 
     // let db = create_client().await;
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL env is not set");
